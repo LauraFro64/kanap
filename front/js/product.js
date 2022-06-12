@@ -1,42 +1,109 @@
-
 // PAGE PRODUIT
 
-// Récupération du produit => ".search" pointe la partie de l'URL qui suit le symbol ?
+//URL d'accès à l' API
+let apiURL = 'http://localhost:3000/api';
+
+// Récupération des paramètres de requête du produit => ".search" pointe la partie de l'URL qui suit le symbol ?
 let params = new URLSearchParams(window.location.search); 
 
 // qu'on récupère ici avec .get qu'on déclare dans une variable
 let itemId = params.get("id");
 
-// Initialisation des caractéristiques du produit
+// Récupération des éléments HTML et les intégrer dans des constantes
 const itemImage = document.getElementsByClassName("item__img");
 const itemTitle = document.getElementById("title");
 const itemPrice = document.getElementById("price");
 const itemDescription = document.getElementById("description");
 const itemColors = document.getElementById("colors"); 
 
-// Ajout d'un string vide pour l'affichage de l'image sur la page
-let imageURL = ""; 
+// Récupération des données d'un canapé
+async function getSingleProduct(canape_id) {
+  let product = await fetch(apiURL + '/products/' + canape_id); 
+  return await product.json();
+  }
 
-// Requête pour récupérer le produit dans la base de données
-// Rajout de 'itemId' déclaré précédemment pour cibler et avoir le produit selectionné
-fetch(`http://localhost:3000/api/products/${itemId}`)
-  .then((response) => response.json()) 
-  .then((data) => {
+//Appel de la fonction avec le paramètre itemId, défini lorsqu'on a récupéré les paramètres de requête 
+getSingleProduct(itemId)
+  .then(product => {
+    console.log(product);
+    // Personnalisation des constantes créees via les éléments du code HTML
+    itemImage[0].innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}">`; // [0] pour récupérer le 1er élément du tableau
+    itemDescription.innerHTML = `${product.description}`;
+    itemTitle.innerHTML = `<h1>${product.name}</h1>`;
+    itemPrice.innerHTML = `${product.price}`;
+    
+    // Possibilité de 'formater' un nombre sous la forme monétaire en fonction de la devise et du pays avec la fonction NumberFormat 
+    /** itemPrice.innerHTML = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data.price); **/
 
-console.log(data);
+    // Génération des options de la liste déroulante associée.
+    let listeCouleurs = product.colors;
+    // On vient ensuite parcourir chaque donnée du tableau avec la commande forEach
+    // Cette commande renvoie une fonction, notée ci-dessous sous la formée fléchée simplifiée, avec comme paramètre de sortie la variable coloris
+    listeCouleurs.forEach(coloris => {
+      let optionLine = `<option value="${coloris}">${coloris}</option>`;
+      itemColors.innerHTML += optionLine;
+    });
+  })  
 
-// Implémentation des éléments de la page dans le code HTML
-    itemImage[0].innerHTML = `<img src="${data.imageUrl}" alt="${data.altTxt}">`; // [0] pour récupérer le 1er élément du tableau
-    imageURL = data.imageUrl;
-
-    itemTitle.innerHTML = `<h3>${data.name}</h3>`;
-    itemPrice.innerHTML = `${data.price}`;
-    itemDescription.innerHTML = `${data.description}`;
-
-
-  })
-  
   // Affichage des erreurs potentielles
   .catch((error) => {
-    alert("Error");
+    console.error('Erreur : ' + error)
   });
+
+// Création de constantes pour les choix de l'utilisateur
+const itemQuantity = document.getElementById("quantity");
+const itemOptionColor = document.getElementById("colors");
+const addToCart = document.getElementById("addToCart");
+
+// Click + envoi au panier
+addToCart.addEventListener("click", (event) => {
+  event.preventDefault(); // => bloque le click event si les conditions ne sont pas au rdv:
+
+  // La quantité du produit n'est pas respectée:
+  if (
+    itemQuantity.value <= 0 
+    || // => vérifier si au moins une des deux conditions est vraie
+    itemQuantity.value > 100
+  ) {
+  alert("Veuillez ajouter svp une quantité comprise entre 0 et 100");
+  }
+  // Si l'option de couleur n'a pas été selectionnée
+  else if (itemOptionColor.value == "") {
+  alert("Veuillez sélectionner svp une couleur disponible");
+  } else {
+
+// Récupération des valeurs utiles du produit sélectionné
+  let selectedProduct = {
+    name: itemTitle.textContent,
+    id: itemId,
+    price: itemPrice.textContent,
+    color: itemOptionColor.value,
+    quantity: itemQuantity.value,
+  };
+
+console.log(selectedProduct);
+
+// Initialisation du localStorage au sein du bouton "ajouter au panier" afin de stocker les données
+// Déclaration de la variable 
+// JSON.parse convertit les données JSON du local storage en objet Javascript
+  let productInLocalStorage = JSON.parse(localStorage.getItem("product")); 
+
+// Vérification s'il y a déjà le produit enregistré dans le local storage ou non
+  let addProductInLocalStorage = () => {
+    
+// Récupération des données dans un tableau avec la méthode .push qui permet d'ajouter des valeurs 
+    productInLocalStorage.push(selectedProduct);
+
+// Enregistrement d'une clé et de sa valeur avec la méthode .setItem 
+// Utilisation de la méthode JSON.stringify pour convertir l'objet Javascript en chaîne de caractères
+   localStorage.setItem("product", JSON.stringify(productInLocalStorage)); 
+  };
+
+  // Confirmation de l'ajout du produit au panier
+  let itemAddedInCart = () => {
+    alert("Votre article a bien été ajouté dans le panier !");
+
+  };
+
+    console.log(productInLocalStorage); 
+}})
