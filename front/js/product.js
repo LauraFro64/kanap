@@ -65,11 +65,11 @@ addToCart.addEventListener("click", (event) => {
     || // => vérifier si au moins une des deux conditions est vraie
     itemQuantity.value > 100
   ) {
-  alert("Veuillez ajouter svp une quantité comprise entre 0 et 100");
+  alert("Veuillez svp, ajouter une quantité comprise entre 1 et 100");
   }
   // Si l'option de couleur n'a pas été selectionnée
   else if (itemOptionColor.value == "") {
-  alert("Veuillez sélectionner svp une couleur disponible");
+  alert("Veuillez svp, sélectionner une couleur disponible");
   } else {
 
 // Récupération des valeurs utiles du produit sélectionné
@@ -79,6 +79,7 @@ addToCart.addEventListener("click", (event) => {
     price: itemPrice.textContent,
     color: itemOptionColor.value,
     quantity: itemQuantity.value,
+    Image: imageUrl,
   };
 
 console.log(selectedProduct);
@@ -92,25 +93,26 @@ console.log(selectedProduct);
 const popupConfirmation =() =>{
   if(window.confirm(`|${itemTitle.textContent} a bien été ajouté au panier!
 Cliquez sur OK pour valider votre panier ou sur ANNULER pour poursuivre vos achats.`)){
-  window.location.href = "confirmation.html"
-  }else{
+  window.location.href = "cart.html"
+  }
+  else{
     window.location.href = "index.html"
   }
 }
 
 // Vérification s'il y a déjà un produit enregistré dans le local storage ou 
 // Ajout d'un autre produit avec .push
-  if(productInLocalStorage){
+// Appel de la fonction pop up
+if(productInLocalStorage){
     productInLocalStorage.push(selectedProduct);
     localStorage.setItem("product", JSON.stringify(productInLocalStorage))
     console.log(productInLocalStorage);
     popupConfirmation();
-  }
-
+ }
 // S'il n'y a pas de produit enregistré dans le local storage
 // Enregistrement d'une clé et de sa valeur avec la méthode .setItem 
 // Utilisation de la méthode JSON.stringify pour convertir l'objet Javascript en chaîne de caractères JSON
-  else{
+else{
     productInLocalStorage =[];
     productInLocalStorage.push(selectedProduct);
     localStorage.setItem("product", JSON.stringify(productInLocalStorage))

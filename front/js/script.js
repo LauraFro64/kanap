@@ -37,8 +37,3 @@ async function getProducts() {
                 ` 
             }
     }) 
-
-  // Affichage des erreurs potentielles
-  .catch((error) => {
-    console.error('Erreur : ' + error)
-  });
