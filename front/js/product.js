@@ -88,22 +88,31 @@ console.log(selectedProduct);
 // JSON.parse convertit les données JSON du local storage en objet Javascript
   let productInLocalStorage = JSON.parse(localStorage.getItem("product")); 
 
-// Vérification s'il y a déjà le produit enregistré dans le local storage ou non
-  let addProductInLocalStorage = () => {
-    
-// Récupération des données dans un tableau avec la méthode .push qui permet d'ajouter des valeurs 
+// Déclaration fenêtre pop up pour diriger l'utilisateur vers la page panier ou la page d'accueil
+const popupConfirmation =() =>{
+  if(window.confirm(`|${itemTitle.textContent} a bien été ajouté au panier!
+Cliquez sur OK pour valider votre panier ou sur ANNULER pour poursuivre vos achats.`)){
+  window.location.href = "confirmation.html"
+  }else{
+    window.location.href = "index.html"
+  }
+}
+
+// Vérification s'il y a déjà un produit enregistré dans le local storage ou 
+// Ajout d'un autre produit avec .push
+  if(productInLocalStorage){
     productInLocalStorage.push(selectedProduct);
+    localStorage.setItem("product", JSON.stringify(productInLocalStorage))
+    console.log(productInLocalStorage);
+    popupConfirmation();
+  }
 
+// S'il n'y a pas de produit enregistré dans le local storage
 // Enregistrement d'une clé et de sa valeur avec la méthode .setItem 
-// Utilisation de la méthode JSON.stringify pour convertir l'objet Javascript en chaîne de caractères
-   localStorage.setItem("product", JSON.stringify(productInLocalStorage)); 
-  };
-
-  // Confirmation de l'ajout du produit au panier
-  let itemAddedInCart = () => {
-    alert("Votre article a bien été ajouté dans le panier !");
-
-  };
-
-    console.log(productInLocalStorage); 
+// Utilisation de la méthode JSON.stringify pour convertir l'objet Javascript en chaîne de caractères JSON
+  else{
+    productInLocalStorage =[];
+    productInLocalStorage.push(selectedProduct);
+    localStorage.setItem("product", JSON.stringify(productInLocalStorage))
+  }
 }})
