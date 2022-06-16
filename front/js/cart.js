@@ -6,6 +6,8 @@ let products= [];
 // Conversion des données de la chaine de caractère JSON en objet javascript
 let productInLocalStorage = JSON.parse(localStorage.getItem("product")); 
 
+console.log(productInLocalStorage)
+
 // Si le panier est vide
 if (productInLocalStorage === null || productInLocalStorage === 0) {
 
@@ -27,7 +29,7 @@ if (productInLocalStorage === null || productInLocalStorage === 0) {
     productsCart = productsCart + 
         `<article class="cart__item" data-id="${productInLocalStorage[i].id}" data-color="${productInLocalStorage.color}">         
               <div class="cart__item__img">
-                  <img src="${productInLocalStorage[i].imageURL}" alt="${productInLocalStorage[i].alt}">
+                  <img src="${productInLocalStorage[i].imageUrl}" alt="${productInLocalStorage[i].altTxt}">
               </div>
               <div class="cart__item__content">
                   <div class="cart__item__content__titlePrice">
@@ -53,3 +55,47 @@ if (productInLocalStorage === null || productInLocalStorage === 0) {
         const cartItems = document.getElementById("cart__items"); 
         cartItems.innerHTML += productsCart;
     }}
+
+// Ajout d'un produit sélectionné dans le local storage
+const addProductInLocalStorage = () => {
+    // Ajout dans le tableau de l'objet avec les values choisies par l'utilisateur
+    productInLocalStorage.push(productsCart);
+
+    // Transformation en format JSON et l'envoyer dans la key "product" du localstorage
+    localStorage.setItem("product",JSON.stringify(addProductInLocalStorage))
+}
+
+// Si le produit est envoyé dans le local storage
+    /** if (productInLocalStorage) { 
+  
+      // Pour chaque produit ajouté
+      productInLocalStorage.forEach(function (productAdd) {
+
+// Si le produit ajouté possède un 'id' et une option 'color' identique: la quantité est mise à jour
+    if (productAdd.id == itemId && productAdd.color == itemOptions.value(""){}**/
+
+
+/** GESTION DU BOUTONN SUPPRIMER **/
+let btn_supprimer = document.getElementsByClassName("deleteItem");
+console.log(btn_supprimer)
+
+for (let l = 0; l < btn_supprimer.length; l++){
+    btn_supprimer[l].addEventListener("click" , (event) =>{
+        event.preventDefault(); // => évite le rechargement de la page
+
+// Sélection de l'ID de l'article à supprimer 
+let id_selection_supp = productInLocalStorage[l].id_productsCart
+
+// Utilisation de la méthode filter qui retourne un nouveau tableau contenant tous les éléments du tableau d'origine qui remplissent une condition déterminée par la fonction callback
+productInLocalStorage = productInLocalStorage.filter( element => element.id_productsCart !== id_selection_supp); // ! => effet inverse
+
+// Transformation en format JSON et l'envoyer dans la key "product" du localstorage
+localStorage.setItem("product",JSON.stringify(addProductInLocalStorage))
+
+// Création d'une alerte
+alert("Cet article a bien été supprimé de votre panier");
+window.location.href ="cart.html"
+
+})
+}
+

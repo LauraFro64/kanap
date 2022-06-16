@@ -55,7 +55,7 @@ const itemQuantity = document.getElementById("quantity");
 const itemOptionColor = document.getElementById("colors");
 const addToCart = document.getElementById("addToCart");
 
-// Click + envoi au panier
+// Click + ajout au panier
 addToCart.addEventListener("click", (event) => {
   event.preventDefault(); // => bloque le click event si les conditions ne sont pas au rdv:
 
@@ -75,11 +75,11 @@ addToCart.addEventListener("click", (event) => {
 // Récupération des valeurs utiles du produit sélectionné
   let selectedProduct = {
     name: itemTitle.textContent,
+    image: itemImage,
     id: itemId,
     price: itemPrice.textContent,
     color: itemOptionColor.value,
     quantity: itemQuantity.value,
-    Image: imageUrl,
   };
 
 console.log(selectedProduct);
@@ -91,7 +91,7 @@ console.log(selectedProduct);
 
 // Déclaration fenêtre pop up pour diriger l'utilisateur vers la page panier ou la page d'accueil
 const popupConfirmation =() =>{
-  if(window.confirm(`|${itemTitle.textContent} a bien été ajouté au panier!
+  if(window.confirm(`${itemTitle.textContent} a bien été ajouté au panier!
 Cliquez sur OK pour valider votre panier ou sur ANNULER pour poursuivre vos achats.`)){
   window.location.href = "cart.html"
   }
@@ -100,8 +100,8 @@ Cliquez sur OK pour valider votre panier ou sur ANNULER pour poursuivre vos acha
   }
 }
 
-// Vérification s'il y a déjà un produit enregistré dans le local storage ou 
-// Ajout d'un autre produit avec .push
+// Vérification s'il y a déjà un produit enregistré dans le local storage 
+// Si oui, Ajout d'un autre produit avec .push
 // Appel de la fonction pop up
 if(productInLocalStorage){
     productInLocalStorage.push(selectedProduct);
