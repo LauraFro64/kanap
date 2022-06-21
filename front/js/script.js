@@ -14,16 +14,16 @@ async function getProducts() {
     return products.json();
     }
 
-// Appel de la fonction et exécution d'une promesse avec .then
+    // Appel de la fonction et exécution d'une promesse avec .then
     getProducts()
         .then(function(products)
         {
 
-// Création d'une boucle for reprenant les données de l'API
+            // Création d'une boucle for reprenant les données de l'API
             for (let i=0; i<products.length; i++) 
             { 
                 
-// Personnalisation des éléments HTML avec les données de l'API
+                // Personnalisation des éléments HTML avec les données de l'API
                 let product = products[i]
                 items.innerHTML += 
                 `
