@@ -108,7 +108,7 @@ deleteProductOfCart = () => {
     deleteProduct[k].addEventListener("click", (event) => {
       event.preventDefault();
 
-      // Enregistrement de l'id et de la couleur sélectionnée par le bouton supprimer
+      // Enregistrement de l'id et de la couleur sélectionnés par le bouton supprimer
       let deleteId = productInLocalStorage[k].id;
       let deleteColor = productInLocalStorage[k].color;
 
@@ -285,3 +285,5 @@ const sendCart = {
 
 // Appel de la fonction
   formOrder();
+
+  
