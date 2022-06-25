@@ -6,8 +6,6 @@ let products= [];
 // Conversion des données de la chaine de caractère JSON en objet javascript
 let productInLocalStorage = JSON.parse(localStorage.getItem("product")); 
 
-console.log(productInLocalStorage)
-
 // Si le panier est vide
 if (productInLocalStorage === null || productInLocalStorage == 0) { // on met "== 0" et non "=== 0" sinon ça ne fonctionne pas
 
@@ -91,6 +89,9 @@ changeQuantity = () => {
         // Pop-up de la mise à jour du panier
         alert("Votre panier a bien été mis à jour !");
 
+        // Rechargement de la page pour actualiser le contenu du panier
+      window.location.href = "cart.html"; 
+
       });
     }
   };
@@ -159,11 +160,33 @@ cartTotal =() => {
     // Intégration du code HTML du prix total à afficher
     const totalPrice = document.getElementById("totalPrice");
     totalPrice.textContent = montantTotal;
+    
     }
     };
 
 // Appel de la fonction
 cartTotal();
+
+// AFFICHAGE DU NOMBRE TOTAL D'ARTICLES DANS LE PANIER
+totalArticles = () => {
+  let totalItems = 0;
+  for (e in productInLocalStorage) {
+
+    // Analyse et converti la valeur 'quantity' dans le localstorage en une chaîne, et renvoie un entier (parseInteger), sur la base décimale de 10 
+    // Transforme la donnée string en donnée number
+    const newQuantity = parseInt(productInLocalStorage[e].quantity, 10);
+
+    // Attribue la valeur retournée par parseInt à la variable totalItems
+    totalItems += newQuantity;
+  }
+
+  // Attribue à totalQuantity la valeur de totalItems et l'afficher dans le DOM
+  const totalQuantity = document.getElementById("totalQuantity");
+  totalQuantity.textContent = totalItems; 
+
+  };
+
+totalArticles();
 
 
 // GESTION DU FORMULAIRE
@@ -174,8 +197,8 @@ formOrder = () => {
   order.addEventListener("click", (event) => {
     event.preventDefault();
 
-    //Récupération des valeurs du formulaire
-    const formValues = {
+    //Récupération des données du formulaire dans un objet
+    const formData = {
       firstName: document.getElementById("firstName").value, // "," et non ";" car c'est un objet
       lastName: document.getElementById("lastName").value,
       address: document.getElementById("address").value,
@@ -192,7 +215,7 @@ formOrder = () => {
     // Contrôle du prénom
     function controlFirstName(){ // => il s'agit d'une "fonction expression" rédigée au milieu d'une expression
       // Utilisation des expressions rationnelles (= motifs utilisées pour correspondre à certaines combinaisons de caractères au sein de chaînes de caractères)
-      const validFirstName = formValues.firstName;
+      const validFirstName = formData.firstName;
       if(regExFirstAndLastNameAndCity(validFirstName)){ // méthode Regex, ici pas de symbole spécial et nbre de caractères limité entre 2 et 20
         return true;
       } else {
@@ -203,7 +226,7 @@ formOrder = () => {
 
     // Contrôle du nom
     function controlLastName(){
-      const validLastName = formValues.lastName;
+      const validLastName = formData.lastName;
       if(regExFirstAndLastNameAndCity(validLastName)){
         return true;
       } else {
@@ -214,7 +237,7 @@ formOrder = () => {
 
       // Contrôle de l'adresse
       function controlAddress(){
-        const validAddress = formValues.address;
+        const validAddress = formData.address;
         if (/^[a-zA-Z0-9\s-]{2,50}$/.test(validAddress)) {
           return true;
         } else {
@@ -225,7 +248,7 @@ formOrder = () => {
 
       // Contrôle de la ville
       function controlCity(){
-        const validCity = formValues.city;
+        const validCity = formData.city;
         if (regExFirstAndLastNameAndCity(validCity)) {
           return true;
         } else {
@@ -236,7 +259,7 @@ formOrder = () => {
 
       // Contrôle de l'email
       function controlEmail(){
-        const validEmail = formValues.email;
+        const validEmail = formData.email;
         if (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(validEmail)) {
           return true;
         } else {
@@ -255,7 +278,7 @@ formOrder = () => {
           controlEmail()
         ) {
           // Envoi des informations dans le local storage
-          localStorage.setItem("formValues", JSON.stringify(formValues)); // 
+          //localStorage.setItem("formData", JSON.stringify(formData)); // 
           // Méthode booléan
           return true;
 
@@ -269,8 +292,8 @@ formControl();
 
 // Récupération des données du formulaires et des produits dans un objet
 const cartData ={
-  formOrder,
-  productInLocalStorage,
+  formData,
+  products,
 };
 
 // Envoi de l'objet cartData vers le serveur avec la méthode POST
@@ -281,9 +304,20 @@ const sendCart = {
     "Content-Type": "application/json",
   },
 };
-})};
+
+  fetch("http://localhost:3000/api/products/order", sendCart)
+  .then((response) => response.json())
+  .then((data) => {
+    
+    localStorage.setItem("orderId", data.orderId);
+    
+    if (formControl()) {
+      document.location.href = `confirmation.html?id=${data.orderId}`;
+    }
+  });
+}); // addventlistener fin
+};
 
 // Appel de la fonction
-  formOrder();
+formOrder();
 
-  
