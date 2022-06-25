@@ -16,26 +16,27 @@ const itemPrice = document.getElementById("price");
 const itemDescription = document.getElementById("description");
 const itemColors = document.getElementById("colors");
 
-// Récupération des données d'un canapé
-async function getSingleProduct(canape_id) {
-  let product = await fetch(apiURL + "/products/" + canape_id);
-  return await product.json();
-}
+// Ajout d'un string vide pour l'affichage de l'image sur la page
+let imageUrl = "";
 
-//Appel de la fonction avec le paramètre itemId, défini lorsqu'on a récupéré les paramètres de requête
-getSingleProduct(itemId)
-  .then((product) => {
+// Requête pour récupérer le produit dans la base de données
+  // Rajout de 'itemId' déclaré précédemment pour cibler et avoir le produit selectionné
+  fetch(`http://localhost:3000/api/products/${itemId}`)
+  .then((response) => response.json()) 
+  .then((data) => {
+
     // Personnalisation des constantes créees via les éléments du code HTML
-    itemImage[0].innerHTML = `<img src="${product.imageUrl}" alt="${product.altTxt}">`; // [0] pour récupérer le 1er élément du tableau
-    itemDescription.innerHTML = `${product.description}`;
-    itemTitle.innerHTML = `<h1>${product.name}</h1>`;
-    itemPrice.innerHTML = `${product.price}`;
+    itemImage[0].innerHTML = `<img src="${data.imageUrl}" alt="${data.altTxt}">`; // [0] pour récupérer le 1er élément du tableau
+    imageUrl = data.imageUrl;
+    itemDescription.innerHTML = `${data.description}`;
+    itemTitle.innerHTML = `<h1>${data.name}</h1>`;
+    itemPrice.innerHTML = `${data.price}`;
 
     // Possibilité de 'formater' un nombre sous la forme monétaire en fonction de la devise et du pays avec la fonction NumberFormat
     /** itemPrice.innerHTML = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data.price); **/
 
     // Génération des options de la liste déroulante associée.
-    let listeCouleurs = product.colors;
+    let listeCouleurs = data.colors;
     // On vient ensuite parcourir chaque donnée du tableau avec la commande forEach
     // Cette commande renvoie une fonction, notée ci-dessous sous la formée fléchée simplifiée, avec comme paramètre de sortie la variable coloris
     listeCouleurs.forEach((coloris) => {
@@ -75,7 +76,7 @@ addToCart.addEventListener("click", (event) => {
       color: itemOptionColor.value,
       quantity: itemQuantity.value,
       name: itemTitle.textContent,
-      image: itemImage[0],
+      image: imageUrl,
       price: itemPrice.textContent,
     };
 
