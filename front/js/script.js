@@ -8,13 +8,12 @@ let items = document.getElementById("items") // => on récupère l'id du code HT
 // Async = fonction qui s'exécute de manière asynchrone en utilisant une promesse comme valeur de retour
 // Await suspend l’exécution de la fonction jusqu’à ce que la promesse soit réglée
 // Return stoppe la fonction et renvoie un résultat dans la console
+
 async function getProducts() {
     let products = await fetch(apiURL + '/products/'); 
     console.log(products)
     return products.json();
     }
-
-    // Appel de la fonction et exécution d'une promesse avec .then
     getProducts()
         .then(function(products)
         {

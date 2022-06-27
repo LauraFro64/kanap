@@ -75,9 +75,9 @@ addToCart.addEventListener("click", (event) => {
       id: itemId,
       color: itemOptionColor.value,
       quantity: itemQuantity.value,
-      name: itemTitle.textContent,
-      image: imageUrl,
-      price: itemPrice.textContent,
+      // name: itemTitle.textContent,
+      //image: imageUrl,
+      // price: itemPrice.textContent,
     };
 
     // Initialisation du localStorage au sein du bouton "ajouter au panier" afin de stocker les données
