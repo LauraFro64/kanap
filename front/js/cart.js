@@ -1,186 +1,186 @@
+// PAGE PANIER
 
-// Conversion des données de la chaine de caractère JSON en objet javascript
-let cart = JSON.parse(localStorage.getItem("product"));
+//Stockage des variables
+let urlApi = 'http://localhost:3000/api';
 
-// Variable pour stocker les Id de chaque article présent dans le panier (utilisés pour créer la commande)
+// Variable pour stocker les Id de chaque articles présent dans le panier (utilisés pour créer la commande)
 let products = [];
 
 // Variable qui récupère l'orderId envoyé comme réponse par le serveur lors de la requête POST
 let orderId = "";
 
-// Affichage du contenu du panier
-async function displayCart() {
-  const CartContain = document.getElementById("cart__items");
-  let cartArray = [];
 
-  // Si le localstorage est vide
+// Récupération du contenu du panier dans le localStorage
+function getCartFromLS() {
+  // Conversion des données de la chaine de caractère JSON en objet javascript
+  let cart = localStorage.getItem("product");
+  // Si le localstorage est vide, il renvoie un tableau vide sinon 
   if (cart === null || cart === 0) {
-    CartContain.textContent = "Votre panier est vide";
+    return [];
   } else {
-    console.log("Des produits sont présents dans le panier");
-  }
-  
-  // Si le localstorage contient des produits
-  for (i = 0; i < cart.length; i++) {
-    const product = await getProductById(cart[i].id);
-    const totalPriceItem = (product.price *= cart[i].quantity);
-    cartArray += `<article class="cart__item" data-id="${cart[i].id}" data-color="${cart[i].color}">
-                  <div class="cart__item__img">
-                      <img src="${product.imageUrl}" alt="${product.altTxt}">
-                  </div>
-                  <div class="cart__item__content">
-                      <div class="cart__item__content__description">
-                          <h2>${product.name}</h2>
-                          <p>${cart[i].color}</p>
-                          <p>Prix unitaire: ${product.price}€</p>
-                      </div>
-                      <div class="cart__item__content__settings">
-                        <div class="cart__item__content__settings__quantity">
-                            <p id="quantité">
-                              Qté : <input data-id= ${cart[i].id} data-color= ${cart[i].color} type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${cart[i].quantity}>
-                            </p>
-                            <p id="sousTotal">Prix total pour cet article: ${totalPriceItem}€</p> 
-                        </div>
-                        <div class="cart__item__content__settings__delete">
-                          <p data-id= ${cart[i].id} data-color= ${cart[i].color} class="deleteItem">Supprimer</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  </article>`;
-  }
-  // Boucle d'affichage du nombre total d'articles dans le panier et de la somme totale
-  let totalQuantity = 0;
-  let totalPrice = 0;
-
-  for (i = 0; i < cart.length; i++) {
-    const article = await getProductById(cart[i].id);
-    totalQuantity += parseInt(cart[i].quantity);
-    totalPrice += parseInt(article.price * cart[i].quantity);
-  }
-
-  document.getElementById("totalQuantity").innerHTML = totalQuantity;
-  document.getElementById("totalPrice").innerHTML = totalPrice;
-
-  if (i == cart.length) {
-    const parser = new DOMParser();
-    const displayBasket = parser.parseFromString(cartArray, "text/html");
-    CartContain.appendChild(displayBasket.body);
-    changeQuantity();
-    deleteItem();
+    return JSON.parse(cart);
   }
 }
 
-  // // Addition des prix avec la méthode "reduce" qui garde en mémoire, à chaque calcul, les résultats de l'opération en cumulant la somme précédente
-  // const reducer = (accumulator, currentValue) => accumulator + currentValue; // en paramètre un accumulateur => valeur précédente et la valeur courante
-  // montantTotal = priceProductsInCart.reduce(reducer,0); // obligation de mettre une valeur initiale 0 sinon erreur
-
-// Récupération des produits de l'API
-async function getProductById(productId) {
-  return fetch("http://localhost:3000/api/products/" + productId)
-    .then(function (res) {
-      return res.json();
-    })
-    .catch((err) => {
-      // Erreur serveur
-      console.log("erreur");
-    })
-    .then(function (response) {
-      return response;
-    });
+//Enregistrement du contenu du panier dans le LocalStorage
+const saveCartInLS = (cartContent) => {
+  localStorage.setItem("product", JSON.stringify(cartContent)); 
 }
-displayCart();
 
-// MODIFICATION DE LA QUANTITE DU PRODUIT DIRECTEMENT DEPUIS LE PANIER
-function changeQuantity() {
-  const quantityInputs = document.querySelectorAll(".itemQuantity");
-  quantityInputs.forEach((quantityInput) => {
-    quantityInput.addEventListener("change", (event) => {
-      event.preventDefault();
-      
-      // Target permet de retrouver l'objet associé à l'évèment
-      const inputValue = event.target.value;
-      const dataId = event.target.getAttribute("data-id");
-      const dataColor = event.target.getAttribute("data-color");
-      let cart = localStorage.getItem("cart");
-      let items = JSON.parse(cart);
+//Récupération des infos d'un produit depuis l'API
+async function getProductInfo(productId) {
+  return fetch(`${urlApi}/products/${productId}`)
+  .then(res =>  {return res.json()})
+  .then(response => { return response}) 
+  .catch((err) => { console.log("erreur",err) })
+}
 
-      items = items.map((item) => {
-        if (item.id === dataId && item.color === dataColor) {
-          item.quantity = inputValue;
-        }
-        return item;
+// Gestion de la modification des produits dans le panier
+// "QuerySelectorAll" permet d'utiliser la fonction "forEach" car obtention d'une "node list' lue comme un []
+const updateQuantity = () => {
+  let itemsQuantity = document.querySelectorAll(".itemQuantity");
+  itemsQuantity.forEach((itemQuantity) => {
+    itemQuantity.addEventListener("change", (event) =>{
+      event.preventDefault(); 
+      //Récupération des éléments permettant la mise à jour du panier
+      const inputValue = itemQuantity.value;
+      // .closest permet de trouver le parent du sélecteur passé en paramètre, ici itemQuantity
+      // .dataset permet de modifier immédiatement l'élément
+      const dataId = itemQuantity.closest("article").dataset.id;
+      const dataColor = itemQuantity.closest("article").dataset.color;
+      //Récupération du contenu du LS
+      let productsIncart = getCartFromLS();
+      //Parcours du contenu 
+      productsIncart.forEach((productIncart) => {
+        if (productIncart.id == dataId && productIncart.color == dataColor){
+          if (inputValue < 1 || inputValue > 100) {
+            //Réinitialisation de la valeur du champ itemQuantity à sa valeur d'origine
+            itemQuantity.value = productIncart.quantity;
+            alert('Attention, quantité saisie invalide');
+          } else {
+            //Mise à jour du panier
+            productIncart.quantity = inputValue;
+            alert('Produit mis à jour');
+          }
+          }
       });
-      // Mise à jour du localStorage
-      let itemsStr = JSON.stringify(items);
-      localStorage.setItem("cart", itemsStr);
-      // Refresh de la page Panier
-      location.reload();
+      //Mise à jour du LS 
+      saveCartInLS(productsIncart);
+      //Recalcul des totaux du panier
+      cartTotals();
+      });
     });
-  });
+  };
+
+
+// Calcul du nombre total de produits + prix total du panier
+// Initialisation du panier en partant de 0
+const cartTotals = () => {
+  let productsQuantity = 0;
+  let totalPriceCart = 0;
+  let productsIncart = getCartFromLS();
+  if (productsIncart.length == 0) {
+    totalQuantity.innerHTML = productsQuantity;
+    totalPrice.innerHTML = totalPriceCart;
+  } else {
+    // Création d'une fonction asynchrone sinon le montant total ne s'affiche pas 
+    productsIncart.forEach(async (productIncart) => {
+      // Mise en pause de la promesse afin que la fonction récupère les infos du produit depuis l'API
+      const productInfo = await getProductInfo(productIncart.id);
+      // ParseInt transforme l'élément en nombre entier
+      productsQuantity += parseInt (productIncart.quantity);
+      totalPriceCart += parseInt (productInfo.price) * parseInt (productIncart.quantity);
+      totalQuantity.innerHTML = productsQuantity;
+      totalPrice.innerHTML =totalPriceCart;
+    });
+  }
 }
 
+//Suppression d'un produit
+const deleteProducts = () =>{
+  //Récupération des liens de suppression des produits qu'on parcourt puis activation du click
+  let deletedProductLinks = document.querySelectorAll(".deleteItem");
+  deletedProductLinks.forEach ((deletedProductLink) =>{
+    deletedProductLink.addEventListener("click", (event) => {
+      // .closest permet de trouver le parent du sélecteur passé en paramètre, ici deletedProductLink
+      // .dataset permet de modifier immédiatement l'élément
+      let deleteId = deletedProductLink.closest("article").dataset.id;
+      let deleteColor = deletedProductLink.closest("article").dataset.color;
 
-//SUPPRESSION D'UN ARTICLE DU PANIER
-// Déclaration d'une fonction fléchée qui engendre une variable dans laquelle on récupère l'élément HTML utile
-function deleteItem() {
-  const deleteButtons = document.querySelectorAll(".deleteItem");
-  deleteButtons.forEach((deleteButton) => {
-    deleteButton.addEventListener("click", (event) => {
-      event.preventDefault();
-
-      // Enregistrement de l'id et de la couleur sélectionnés par le bouton supprimer
-      // Target permet de retrouver l'objet associé à l'évèment
-      const deleteId = event.target.getAttribute("data-id");
-      const deleteColor = event.target.getAttribute("data-color");
-
-      // Sélection des éléments à garder avec la méthode .filter 
-      // Suppression de l'élément cliqué avec la logique inversée "!=="
-      cart = cart.filter(
-        (element) => !(element.id == deleteId && element.color == deleteColor)
+      //Récupération des infos du panier
+      let productsInCart = getCartFromLS();
+      // La méthode filter va prendre en argument une fonction dans laquelle il y a une condition. 
+      //Pour que l'élément soit conservé dans le tableau de sortie il faudra que cette condition soit vraie.
+      productsInCart = productsInCart.filter(
+        (element) => !(element.id == deleteId && element.color == deleteColor) // "!" = différent de
       );
-
-      // Mise à jour du local storage avec les produits restants
-      // Traduction de l'objet javascript en chaine de caractère JSON
-      localStorage.setItem("cart", JSON.stringify(cart));
+      // Mise à jour du LS avec les produits restants
+      saveCartInLS(productsInCart);
 
       // Confirmation de la suppression du produit
-      alert("Votre article a bien été supprimé de votre panier !");
+      alert("Votre article a bien été supprimé du panier !");
 
       // Rechargement de la page pour actualiser le contenu du panier
-      window.location.href = "cart.html"; 
-      });
-    })
-  };
-// Appel de la fonction
-deleteItem();
+      displayCart();  
+  });
+});
+};
 
+// Affichage du panier
+function displayCart() {
+  //Nettoyage au préalable ce que contient le conteneur du panier
+  cart__items.innerHTML = "";
+  //Récupération du contenu du panier depuis le LS
+  let productsInCart = getCartFromLS();
+  //Affichage d'un message si le panier est vide
+  if (productsInCart.length == 0) {
+    cart__items.innerHTML +=
+      '<p> Votre panier est vide ! </p>';
+  } else {
+    //Parcours du LS, renvoyant une fonction asynchrone qui va appeler via un await les infos du produit
+    //ProductInfo ne contient plus une promesse, mais bien le tableau des infos du produit.
+    productsInCart.forEach(async (productInCart) => {
+      const productInfo = await getProductInfo(productInCart.id);
+      //Création d'un élément article dans le panier
+      productsCart = `<article class="cart__item" data-id="${productInCart.id}" data-color="${productInCart.color}">         
+                    <div class="cart__item__img">
+                        <img src="${productInfo.imageUrl}" alt="${productInfo.altText}">
+                    </div>
+                    <div class="cart__item__content">
+                        <div class="cart__item__content__titlePrice">
+                            <h2>${productInfo.name}</h2>
+                            <p>${productInCart.color}</p>
+                            <p>${productInfo.price} €</p>
+                        </div>          
+                        <div class="cart__item__content__settings">
+                            <div class="cart__item__content__settings__quantity">
+                                <p>Qté : </p>
+                                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${productInCart.quantity}">
+                            </div>
+                            <div class="cart__item__content__settings__delete">
+                                <p class="deleteItem">Supprimer</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>`;
 
-// AFFICHAGE DU NOMBRE TOTAL D'ARTICLES DANS LE PANIER
-totalArticles = () => {
-  let totalItems = 0;
-  for (e in cart) {
-
-    // Analyse et converti la valeur 'quantity' dans le localstorage en une chaîne, et renvoie un entier (parseInteger), sur la base décimale de 10 
-    // Transforme la donnée string en donnée number
-    const newQuantity = parseInt(cart[e].quantity, 10);
-
-    // Attribue la valeur retournée par parseInt à la variable totalItems
-    totalItems += newQuantity;
+      cart__items.innerHTML += productsCart;
+      //Activation des boutons de mise à jour des quantités dans le panier
+      updateQuantity();
+      //Activation des boutons de suppression dans le panier
+      deleteProducts();
+     
+    });
   }
-
-  // Attribue à totalQuantity la valeur de totalItems et l'afficher dans le DOM
-  const totalQuantity = document.getElementById("totalQuantity");
-  totalQuantity.textContent = totalItems; 
-
-  };
-
-totalArticles();
+  //Calcul des totaux du panier
+  cartTotals();
+}
+//et enfin, on lance l'affichage du panier !
+displayCart();
 
 
 // GESTION DU FORMULAIRE
-// Déclaration d'une fonction fléchée simplifiée
-formOrder = () => {
+formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
   const order = document.getElementById("order");
 
   order.addEventListener("click", (event) => {
@@ -198,7 +198,8 @@ formOrder = () => {
      // Création d'une variable pour éviter de répéter le code pour le prénom, nom et ville
     // Regex pour le contrôle des champs Prénom, Nom et Ville
   const regExPrenomNomVille = (value) => {
-  // Utilisation des expressions rationnelles (= motifs utilisées pour correspondre à certaines combinaisons de caractères au sein de chaînes de caractères)
+  // Utilisation des expressions rationnelles 
+  // Motifs utilisés pour correspondre à certaines combinaisons de caractères au sein de chaînes de caractères)
     return /^[A-Z][A-Za-z\é\è\ê\-]+$/.test(value);
   };
 
@@ -214,7 +215,7 @@ formOrder = () => {
     );
   };
 
-  // Fonctions de contrôle du champ Prénom:
+  // Fonction de contrôle du champ Prénom:
   function firstNameControl() { // => il s'agit d'une "fonction expression" rédigée au milieu d'une expression
     const prenom = formData.firstName;
     let inputFirstName = document.querySelector("#firstName");
@@ -304,63 +305,51 @@ formOrder = () => {
     }
   }
 
-  // Contrôle validité formulaire avant de l'envoyer dans le local storage
+ // Contrôle validité formulaire avant de l'envoyer dans le local storage
   if (
-    firstNameControl() &&
-    lastNameControl() &&
-    addressControl() &&
-    cityControl() &&
-    mailControl()
+  firstNameControl() &&
+  lastNameControl() &&
+  addressControl() &&
+  cityControl() &&
+  mailControl()
   ) {
-    // Enregistrer le formulaire dans le local storage
-    localStorage.setItem("formData", JSON.stringify(formData));
-
-    document.querySelector("#order").value =
-      "Cliquez pour confirmer et passer commande !";
-    sendToServer();
-  } else {
-    error("Veuillez bien remplir le formulaire");
-  }
-
-  /* FIN GESTION DU FORMULAIRE */
-
-  /* REQUÊTE DU SERVEUR ET POST DES DONNÉES */
-  function sendToServer() {
-    const sendToServer = fetch("http://localhost:3000/api/products/order", {
-      method: "POST",
-      body: JSON.stringify({ formData, products }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      // Récupération et stockage de la réponse de l'API (orderId)
-      .then((response) => {
-        return response.json();
-      })
-      .then((server) => {
-        orderId = server.orderId;
-        console.log(orderId);
-      });
-
-    // Si l'orderId a bien été récupéré, on redirige l'utilisateur vers la page de Confirmation
-    if (orderId != "") {
-      location.href = "confirmation.html?id=" + orderId;
-    }
-  }
-});
-
-/* FIN REQUÊTE DU SERVEUR ET POST DES DONNÉES */
-// Maintenir le contenu du localStorage dans le champs du formulaire
-
-let dataFormulaire = JSON.parse(localStorage.getItem("formData"));
-
-if (dataFormulaire) {
-  document.querySelector("#firstName").value = dataFormulaire.firstName;
-  document.querySelector("#lastName").value = dataFormulaire.lastName;
-  document.querySelector("#address").value = dataFormulaire.address;
-  document.querySelector("#city").value = dataFormulaire.city;
-  document.querySelector("#email").value = dataFormulaire.email;
+    
+  // Enregistrement du formulaire dans le local storage
+  localStorage.setItem("formData", JSON.stringify(formData));
+  document.querySelector("#order").value =
+    "Cliquez pour confirmer et passer commande !";
+    sendToServer ();
 } else {
-  console.log("Le formulaire est vide");
-}}
-formOrder();
+  error("Veuillez bien remplir le formulaire");
+}
+
+
+// REQUÊTE DU SERVEUR ET ENVOI DES DONNEES SUR LE SERVEUR
+// avec FETCH et la méthode POST https://www.youtube.com/watch?v=m1IfaqFBgX8
+
+/* REQUÊTE DU SERVEUR ET POST DES DONNÉES */
+function sendToServer() {
+  const sendToServer = fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    body: JSON.stringify({ formData, products }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    // Récupération et stockage de la réponse de l'API (orderId)
+    .then((response) => {
+      return response.json();
+    })
+    .then((server) => {
+      orderId = server.orderId;
+      console.log(orderId);
+    });
+
+  // Si l'orderId a bien été récupéré, on redirige l'utilisateur vers la page de Confirmation
+  if (orderId != "") {
+    location.href = "confirmation.html?id=" + orderId;
+  }
+}
+});
+}
+formOrder ();
