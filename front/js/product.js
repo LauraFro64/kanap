@@ -21,9 +21,13 @@ let imageUrl = "";
 
 // Requête pour récupérer le produit dans la base de données
   // Rajout de 'itemId' déclaré précédemment pour cibler et avoir le produit selectionné
-  fetch(`http://localhost:3000/api/products/${itemId}`)
-  .then((response) => response.json()) 
-  .then((data) => {
+  async function getProducts () {
+    let products = await fetch(`http://localhost:3000/api/products/${itemId}`)
+    console.log(products)
+    return products.json();
+    }
+    getProducts()
+        .then(function(data){
 
     // Personnalisation des constantes créees via les éléments du code HTML
     itemImage[0].innerHTML = `<img src="${data.imageUrl}" alt="${data.altTxt}">`; // [0] pour récupérer le 1er élément du tableau
@@ -99,21 +103,23 @@ Cliquez sur OK pour valider votre panier ou sur ANNULER pour poursuivre vos acha
       }
     };
 
-      // Vérification si un produit similaire avec même id et même couleur est présent
-      productFound = productInLocalStorage.find( // => fonctionne uniquement sur un tableau
-        (p) => p.id == selectedProduct.id && p.color == selectedProduct.color
-      );
+     // Vérification si un produit similaire avec même id et même couleur est présent
+     productFound = productInLocalStorage.find( // => fonctionne uniquement sur un tableau
+     (p) => p.id == selectedProduct.id && p.color == selectedProduct.color);
 
-      // Condition pour vérifier l'existance d'un produit avec la méthode inverse
-      if (productFound != undefined) {
-        // Si oui, augmentation de sa quantité
-        productFound.quantity += selectedProduct.quantity;
-      } else {
-        productInLocalStorage.push(selectedProduct);
-      }
+   // Condition pour vérifier l'existance d'un produit avec la méthode inverse
+   if (productFound != undefined){
+//if (productFound.quantity + selectedProduct.quantity < 100){ alert("Article déjà sélectionné, quantité demandée supérieure à 100.")//  
+     // Si oui, augmentation de sa quantité
+     productFound.quantity = parseInt (productFound.quantity) + parseInt (selectedProduct.quantity);
+ } else {
+     productInLocalStorage.push(selectedProduct);
+   }
 
-      localStorage.setItem("product", JSON.stringify(productInLocalStorage));
-      popupConfirmation();
-    };
+
+
+   localStorage.setItem("product", JSON.stringify(productInLocalStorage));
+   popupConfirmation();
+ };
 }
 );

@@ -3,11 +3,9 @@
 //Stockage des variables
 let urlApi = 'http://localhost:3000/api';
 
-// Variable pour stocker les Id de chaque articles présent dans le panier (utilisés pour créer la commande)
+// Variable pour stocker les Id de chaque article présent dans le panier (utilisés pour créer la commande)
 let products = [];
 
-// Variable qui récupère l'orderId envoyé comme réponse par le serveur lors de la requête POST
-let orderId = "";
 
 
 // Récupération du contenu du panier dans le localStorage
@@ -35,7 +33,7 @@ async function getProductInfo(productId) {
   .catch((err) => { console.log("erreur",err) })
 }
 
-// Gestion de la modification des produits dans le panier
+// Modification des produits dans le panier
 // "QuerySelectorAll" permet d'utiliser la fonction "forEach" car obtention d'une "node list' lue comme un []
 const updateQuantity = () => {
   let itemsQuantity = document.querySelectorAll(".itemQuantity");
@@ -195,161 +193,155 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
       email: document.getElementById("email").value
     };
 
-     // Création d'une variable pour éviter de répéter le code pour le prénom, nom et ville
+    // Création d'une variable pour éviter de répéter le code pour le prénom, nom et ville
     // Regex pour le contrôle des champs Prénom, Nom et Ville
-  const regExPrenomNomVille = (value) => {
-  // Utilisation des expressions rationnelles 
-  // Motifs utilisés pour correspondre à certaines combinaisons de caractères au sein de chaînes de caractères)
-    return /^[A-Z][A-Za-z\é\è\ê\-]+$/.test(value);
-  };
+    const regExPrenomNomVille = (value) => {
+      // Utilisation des expressions rationnelles 
+      // Motifs utilisés pour correspondre à certaines combinaisons de caractères au sein de chaînes de caractères)
+      return /^[A-Z][A-Za-z\é\è\ê\-]+$/.test(value);
+      };
 
-  // Regex pour le contrôle du champ Adresse
-  const regExAdresse = (value) => {
-    return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,2}$/.test(value);
-  };
+    // Regex pour le contrôle du champ Adresse
+    const regExAdresse = (value) => {
+      return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,2}$/.test(value);
+    };
 
-  // Regex pour le contrôle du champ Email
-  const regExEmail = (value) => {
-    return /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/.test(
-      value
-    );
-  };
+    // Regex pour le contrôle du champ Email
+    const regExEmail = (value) => {
+      return /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,10})$/.test(value);
+    };
 
-  // Fonction de contrôle du champ Prénom:
-  function firstNameControl() { // => il s'agit d'une "fonction expression" rédigée au milieu d'une expression
-    const prenom = formData.firstName;
-    let inputFirstName = document.querySelector("#firstName");
-    if (regExPrenomNomVille(prenom)) {
-      inputFirstName.style.backgroundColor = "green";
+    // Fonction de contrôle du champ Prénom:
+    function firstNameControl() { // => il s'agit d'une "fonction expression" rédigée au milieu d'une expression
+      const prenom = formData.firstName;
+      let inputFirstName = document.querySelector("#firstName");
+      if (regExPrenomNomVille(prenom)) {
+        inputFirstName.style.backgroundColor = "green";
 
-      document.querySelector("#firstNameErrorMsg").textContent = "";
-      return true;
-    } else {
-      inputFirstName.style.backgroundColor = "#FF6F61";
+        document.querySelector("#firstNameErrorMsg").textContent = "";
+        return true;
+      } else {
+        inputFirstName.style.backgroundColor = "#FF6F61";
 
-      document.querySelector("#firstNameErrorMsg").textContent =
-        "Champ invalide, ex: Laura";
-      return false;
+        document.querySelector("#firstNameErrorMsg").textContent =
+          "Champ invalide, ex: Laura";
+        return false;
+      }
     }
-  }
 
-  // Fonctions de contrôle du champ Nom:
-  function lastNameControl() {
-    const nom = formData.lastName;
-    let inputLastName = document.querySelector("#lastName");
-    if (regExPrenomNomVille(nom)) {
-      inputLastName.style.backgroundColor = "green";
+    // Fonction de contrôle du champ Nom:
+    function lastNameControl() {
+      const nom = formData.lastName;
+      let inputLastName = document.querySelector("#lastName");
+      if (regExPrenomNomVille(nom)) {
+        inputLastName.style.backgroundColor = "green";
 
-      document.querySelector("#lastNameErrorMsg").textContent = "";
-      return true;
-    } else {
-      inputLastName.style.backgroundColor = "#FF6F61";
+        document.querySelector("#lastNameErrorMsg").textContent = "";
+        return true;
+      } else {
+        inputLastName.style.backgroundColor = "#FF6F61";
 
-      document.querySelector("#lastNameErrorMsg").textContent =
-        "Champ invalide, ex: Fromentin";
-      return false;
+        document.querySelector("#lastNameErrorMsg").textContent =
+          "Champ invalide, ex: Fromentin";
+        return false;
+      }
     }
-  }
 
-  // Fonctions de contrôle du champ Adresse:
-  function addressControl() {
-    const adresse = formData.address;
-    let inputAddress = document.querySelector("#address");
-    if (regExAdresse(adresse)) {
-      inputAddress.style.backgroundColor = "green";
+    // Fonction de contrôle du champ Adresse:
+    function addressControl() {
+      const adresse = formData.address;
+      let inputAddress = document.querySelector("#address");
+      if (regExAdresse(adresse)) {
+        inputAddress.style.backgroundColor = "green";
 
-      document.querySelector("#addressErrorMsg").textContent = "";
-      return true;
-    } else {
-      inputAddress.style.backgroundColor = "#FF6F61";
+        document.querySelector("#addressErrorMsg").textContent = "";
+        return true;
+      } else {
+        inputAddress.style.backgroundColor = "#FF6F61";
 
-      document.querySelector("#addressErrorMsg").textContent =
-        "Champ invalide, ex: 3 rue des Tournesols";
-      return false;
+        document.querySelector("#addressErrorMsg").textContent =
+          "Champ invalide, ex: 3 rue des Tournesols";
+        return false;
+      }
     }
-  }
 
-  // Fonctions de contrôle du champ Ville:
-  function cityControl() {
-    const ville = formData.city;
-    let inputCity = document.querySelector("#city");
-    if (regExPrenomNomVille(ville)) {
-      inputCity.style.backgroundColor = "green";
+    // Fonction de contrôle du champ Ville:
+    function cityControl() {
+      const ville = formData.city;
+      let inputCity = document.querySelector("#city");
+      if (regExPrenomNomVille(ville)) {
+        inputCity.style.backgroundColor = "green";
 
-      document.querySelector("#cityErrorMsg").textContent = "";
-      return true;
-    } else {
-      inputCity.style.backgroundColor = "#FF6F61";
+        document.querySelector("#cityErrorMsg").textContent = "";
+        return true;
+      } else {
+        inputCity.style.backgroundColor = "#FF6F61";
 
-      document.querySelector("#cityErrorMsg").textContent =
-        "Champ invalide, ex: Bayonne";
-      return false;
+        document.querySelector("#cityErrorMsg").textContent =
+          "Champ invalide, ex: Bayonne";
+        return false;
+      }
     }
-  }
 
-  // Fonctions de contrôle du champ Email:
-  function mailControl() {
-    const courriel = formData.email;
-    let inputMail = document.querySelector("#email");
-    if (regExEmail(courriel)) {
-      inputMail.style.backgroundColor = "green";
+    // Fonction de contrôle du champ Email:
+    function mailControl() {
+      const courriel = formData.email;
+      let inputMail = document.querySelector("#email");
+      if (regExEmail(courriel)) {
+        inputMail.style.backgroundColor = "green";
 
-      document.querySelector("#emailErrorMsg").textContent = "";
-      return true;
-    } else {
-      inputMail.style.backgroundColor = "#FF6F61";
+        document.querySelector("#emailErrorMsg").textContent = "";
+        return true;
+      } else {
+        inputMail.style.backgroundColor = "#FF6F61";
 
-      document.querySelector("#emailErrorMsg").textContent =
-        "Champ invalide, ex: example@formData.fr";
-      return false;
+        document.querySelector("#emailErrorMsg").textContent =
+          "Champ invalide, ex: example@formData.fr";
+        return false;
+      }
     }
-  }
 
- // Contrôle validité formulaire avant de l'envoyer dans le local storage
-  if (
-  firstNameControl() &&
-  lastNameControl() &&
-  addressControl() &&
-  cityControl() &&
-  mailControl()
-  ) {
-    
+  // Contrôle validité formulaire avant de l'envoyer dans le local storage
+  formCheck = () => {
+    if (
+    firstNameControl() &&
+    lastNameControl() &&
+    addressControl() &&
+    cityControl() &&
+    mailControl()
+    ) {
+      
   // Enregistrement du formulaire dans le local storage
-  localStorage.setItem("formData", JSON.stringify(formData));
-  document.querySelector("#order").value =
-    "Cliquez pour confirmer et passer commande !";
-    sendToServer ();
+  return true;
+
 } else {
-  error("Veuillez bien remplir le formulaire");
+  alert("Une erreur est survenue, merci de vérifier vos informations");
 }
+};
+
+formCheck();
 
 
-// REQUÊTE DU SERVEUR ET ENVOI DES DONNEES SUR LE SERVEUR
-// avec FETCH et la méthode POST https://www.youtube.com/watch?v=m1IfaqFBgX8
+// Envoi des données du formulaire et des produits au serveur avec la méthode POST
+const checkOut = {
+  method: "POST",
+  body: JSON.stringify({ formData, products }),
+  headers: {
+    "Content-Type": "application/json",
+  },
+};
 
-/* REQUÊTE DU SERVEUR ET POST DES DONNÉES */
-function sendToServer() {
-  const sendToServer = fetch("http://localhost:3000/api/products/order", {
-    method: "POST",
-    body: JSON.stringify({ formData, products }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    // Récupération et stockage de la réponse de l'API (orderId)
-    .then((response) => {
-      return response.json();
-    })
-    .then((server) => {
-      orderId = server.orderId;
-      console.log(orderId);
-    });
+fetch("http://localhost:3000/api/products/order", checkOut)
+  .then((response) => response.json())
+  .then((data) => {
+    
+    localStorage.setItem("orderId", data.orderId);
+    
+    if (formCheck()) {
+      document.location.href = `confirmation.html?id=${data.orderId}`;
+    }
+  });
+}); // addeventlistener fin
+};
 
-  // Si l'orderId a bien été récupéré, on redirige l'utilisateur vers la page de Confirmation
-  if (orderId != "") {
-    location.href = "confirmation.html?id=" + orderId;
-  }
-}
-});
-}
-formOrder ();
+formOrder();
