@@ -20,15 +20,14 @@ const itemColors = document.getElementById("colors");
 let imageUrl = "";
 
 // Requête pour récupérer le produit dans la base de données
-  // Rajout de 'itemId' déclaré précédemment pour cibler et avoir le produit selectionné
-  async function getProducts () {
-    let products = await fetch(`http://localhost:3000/api/products/${itemId}`)
-    console.log(products)
-    return products.json();
-    }
-    getProducts()
-        .then(function(data){
-
+// Rajout de 'itemId' déclaré précédemment pour cibler et avoir le produit selectionné
+async function getProducts() {
+  let products = await fetch(`http://localhost:3000/api/products/${itemId}`);
+  console.log(products);
+  return products.json();
+}
+getProducts()
+  .then(function (data) {
     // Personnalisation des constantes créees via les éléments du code HTML
     itemImage[0].innerHTML = `<img src="${data.imageUrl}" alt="${data.altTxt}">`; // [0] pour récupérer le 1er élément du tableau
     imageUrl = data.imageUrl;
@@ -103,23 +102,36 @@ Cliquez sur OK pour valider votre panier ou sur ANNULER pour poursuivre vos acha
       }
     };
 
-     // Vérification si un produit similaire avec même id et même couleur est présent
-     productFound = productInLocalStorage.find( // => fonctionne uniquement sur un tableau
-     (p) => p.id == selectedProduct.id && p.color == selectedProduct.color);
+    // Vérification si un produit similaire avec même id et même couleur est présent
+    productFound = productInLocalStorage.find(
+      // => fonctionne uniquement sur un tableau
+      (p) => p.id == selectedProduct.id && p.color == selectedProduct.color
+    );
 
-   // Condition pour vérifier l'existance d'un produit avec la méthode inverse
-   if (productFound != undefined){
-//if (productFound.quantity + selectedProduct.quantity < 100){ alert("Article déjà sélectionné, quantité demandée supérieure à 100.")//  
-     // Si oui, augmentation de sa quantité
-     productFound.quantity = parseInt (productFound.quantity) + parseInt (selectedProduct.quantity);
- } else {
-     productInLocalStorage.push(selectedProduct);
-   }
+    let addInCart = 0;
 
+    // Condition pour vérifier l'existance d'un produit avec la méthode inverse
+    if (productFound != undefined) {
+      newQuantity =
+        parseInt(productFound.quantity) + parseInt(selectedProduct.quantity);
+      if (newQuantity > 100) {
+        alert(
+          "Produit déjà existant dans le panier, quantité supérieure à 100. Merci de modifier votre sélection."
+        );
+      } else {
+        // Si oui, augmentation de sa quantité
+        productFound.quantity =
+          parseInt(productFound.quantity) + parseInt(selectedProduct.quantity);
+          addInCart = 1;
+      }
+    } else {
+      productInLocalStorage.push(selectedProduct);
+      addInCart = 1;
+    }
 
-
-   localStorage.setItem("product", JSON.stringify(productInLocalStorage));
-   popupConfirmation();
- };
-}
-);
+    if (addInCart == 1 ) {
+    localStorage.setItem("product", JSON.stringify(productInLocalStorage));
+    popupConfirmation();
+    }
+  }
+});

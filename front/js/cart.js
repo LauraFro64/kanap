@@ -194,16 +194,16 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
     };
 
     // Création d'une variable pour éviter de répéter le code pour le prénom, nom et ville
-    // Regex pour le contrôle des champs Prénom, Nom et Ville
+    // Regex (expressions régulières) pour le contrôle des champs Prénom, Nom et Ville
     const regExPrenomNomVille = (value) => {
-      // Utilisation des expressions rationnelles 
-      // Motifs utilisés pour correspondre à certaines combinaisons de caractères au sein de chaînes de caractères)
-      return /^[A-Z][A-Za-z\é\è\ê\-]+$/.test(value);
+    // Le ^ indique que la chaîne de caractères doit commencer par ce qui est marqué après.
+    // Le $ indique que la chaîne de caractères doit se terminer par ce qui est marqué avant.
+      return /^[A-Za-z\é\è\ê\-]+$/.test(value); 
       };
 
     // Regex pour le contrôle du champ Adresse
     const regExAdresse = (value) => {
-      return /^[a-zA-Z0-9.,-_ ]{5,50}[ ]{0,2}$/.test(value);
+      return /^[a-zA-Z0-9.,-_ ]{3,}$/.test(value);
     };
 
     // Regex pour le contrôle du champ Email
@@ -216,12 +216,12 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
       const prenom = formData.firstName;
       let inputFirstName = document.querySelector("#firstName");
       if (regExPrenomNomVille(prenom)) {
-        inputFirstName.style.backgroundColor = "green";
+        inputFirstName.style.backgroundColor = colorValid;
 
         document.querySelector("#firstNameErrorMsg").textContent = "";
         return true;
       } else {
-        inputFirstName.style.backgroundColor = "#FF6F61";
+        inputFirstName.style.backgroundColor = "red";
 
         document.querySelector("#firstNameErrorMsg").textContent =
           "Champ invalide, ex: Laura";
@@ -229,17 +229,20 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
       }
     }
 
+    let colorValid = "#00FF00";
+    let colorInvalid = "#FF0000";
+
     // Fonction de contrôle du champ Nom:
     function lastNameControl() {
       const nom = formData.lastName;
       let inputLastName = document.querySelector("#lastName");
       if (regExPrenomNomVille(nom)) {
-        inputLastName.style.backgroundColor = "green";
+        inputLastName.style.backgroundColor = colorValid;
 
         document.querySelector("#lastNameErrorMsg").textContent = "";
         return true;
       } else {
-        inputLastName.style.backgroundColor = "#FF6F61";
+        inputLastName.style.backgroundColor = colorInvalid;
 
         document.querySelector("#lastNameErrorMsg").textContent =
           "Champ invalide, ex: Fromentin";
@@ -252,12 +255,12 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
       const adresse = formData.address;
       let inputAddress = document.querySelector("#address");
       if (regExAdresse(adresse)) {
-        inputAddress.style.backgroundColor = "green";
+        inputAddress.style.backgroundColor = colorValid;
 
         document.querySelector("#addressErrorMsg").textContent = "";
         return true;
       } else {
-        inputAddress.style.backgroundColor = "#FF6F61";
+        inputAddress.style.backgroundColor = colorInvalid;
 
         document.querySelector("#addressErrorMsg").textContent =
           "Champ invalide, ex: 3 rue des Tournesols";
@@ -270,12 +273,12 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
       const ville = formData.city;
       let inputCity = document.querySelector("#city");
       if (regExPrenomNomVille(ville)) {
-        inputCity.style.backgroundColor = "green";
+        inputCity.style.backgroundColor = colorValid;
 
         document.querySelector("#cityErrorMsg").textContent = "";
         return true;
       } else {
-        inputCity.style.backgroundColor = "#FF6F61";
+        inputCity.style.backgroundColor = colorInvalid;
 
         document.querySelector("#cityErrorMsg").textContent =
           "Champ invalide, ex: Bayonne";
@@ -288,12 +291,12 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
       const courriel = formData.email;
       let inputMail = document.querySelector("#email");
       if (regExEmail(courriel)) {
-        inputMail.style.backgroundColor = "green";
+        inputMail.style.backgroundColor = colorValid;
 
         document.querySelector("#emailErrorMsg").textContent = "";
         return true;
       } else {
-        inputMail.style.backgroundColor = "#FF6F61";
+        inputMail.style.backgroundColor = colorInvalid;
 
         document.querySelector("#emailErrorMsg").textContent =
           "Champ invalide, ex: example@formData.fr";
@@ -321,11 +324,15 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
 
 formCheck();
 
+orderDetails =  {
+  contact : formData,
+  products : products
+}
 
 // Envoi des données du formulaire et des produits au serveur avec la méthode POST
 const checkOut = {
   method: "POST",
-  body: JSON.stringify({ formData, products }),
+  body: JSON.stringify(orderDetails),
   headers: {
     "Content-Type": "application/json",
   },
@@ -335,10 +342,10 @@ fetch("http://localhost:3000/api/products/order", checkOut)
   .then((response) => response.json())
   .then((data) => {
     
-    localStorage.setItem("orderId", data.orderId);
+    // localStorage.setItem("orderId", data.orderId);
     
     if (formCheck()) {
-      document.location.href = `confirmation.html?id=${data.orderId}`;
+      document.location.href = `confirmation.html?orderId=${data.orderId}`;   
     }
   });
 }); // addeventlistener fin
