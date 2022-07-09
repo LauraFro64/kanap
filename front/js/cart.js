@@ -211,6 +211,10 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
       return /^[_a-z0-9-]+(.[_a-z0-9-]+)*@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,10})$/.test(value);
     };
 
+    // Variables pour la validation ou non des valeurs inscrites par l'utilisateur
+    let colorValid = "#00FF00";
+    let colorInvalid = "#FF0000";
+
     // Fonction de contrôle du champ Prénom:
     function firstNameControl() { // => il s'agit d'une "fonction expression" rédigée au milieu d'une expression
       const prenom = formData.firstName;
@@ -221,7 +225,7 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
         document.querySelector("#firstNameErrorMsg").textContent = "";
         return true;
       } else {
-        inputFirstName.style.backgroundColor = "red";
+        inputFirstName.style.backgroundColor = colorInvalid;
 
         document.querySelector("#firstNameErrorMsg").textContent =
           "Champ invalide, ex: Laura";
@@ -229,8 +233,6 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
       }
     }
 
-    let colorValid = "#00FF00";
-    let colorInvalid = "#FF0000";
 
     // Fonction de contrôle du champ Nom:
     function lastNameControl() {
@@ -299,7 +301,7 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
         inputMail.style.backgroundColor = colorInvalid;
 
         document.querySelector("#emailErrorMsg").textContent =
-          "Champ invalide, ex: example@formData.fr";
+          "Champ invalide, ex: example@live.fr";
         return false;
       }
     }
@@ -324,6 +326,7 @@ formOrder = () => { // Déclaration d'une fonction fléchée simplifiée
 
 formCheck();
 
+// Récupération des données du formulaire et des produits dans un objet
 orderDetails =  {
   contact : formData,
   products : products
