@@ -1,6 +1,6 @@
-// PAGE PRODUIT
+/** PAGE PRODUIT **/
 
-//URL d'accès à l' API
+// URL d'accès à l' API
 let apiURL = "http://localhost:3000/api";
 
 // Récupération des paramètres de requête du produit => ".search" pointe la partie de l'URL qui suit le symbol ?
@@ -67,11 +67,11 @@ addToCart.addEventListener("click", (event) => {
     itemQuantity.value <= 0 || // => vérifier si au moins une des deux conditions est vraie
     itemQuantity.value > 100
   ) {
-    alert("Veuillez svp, ajouter une quantité comprise entre 1 et 100");
+    alert("Veuillez svp, ajouter une quantité comprise entre 1 et 100.");
   }
   // Si l'option de couleur n'a pas été sélectionnée
   else if (itemOptionColor.value == "") {
-    alert("Veuillez svp, sélectionner une couleur disponible");
+    alert("Veuillez svp, sélectionner une couleur disponible.");
   } else {
     // Récupération des valeurs utiles du produit sélectionné
     let selectedProduct = {

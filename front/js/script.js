@@ -23,16 +23,16 @@ async function getProducts() {
             { 
                 
                 // Personnalisation des éléments HTML avec les données de l'API
+                // La méthode createElement optimise davantage que la méthode inner.HTML
                 let product = products[i]
-                items.innerHTML += 
-                `
-                    <a href="./product.html?id=${product._id}"> 
-                    <article>
+                const aDiv = document.createElement ('a')
+                aDiv.setAttribute('href', `./product.html?id=${product._id}`)
+                aDiv.innerHTML = `<article>
                     <img src="${product.imageUrl}" alt="${product.altTxt}"> 
                     <h3 class="productName">${product.name}</h3>
                     <p class="productDescription">${product.description}</p>
-                    </article>
-                    </a> 
-                ` 
+                </article>
+                `   
+                items.appendChild(aDiv)   
             }
-    }) 
+        }) 
